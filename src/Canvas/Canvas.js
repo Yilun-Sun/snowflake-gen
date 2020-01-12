@@ -31,11 +31,13 @@ let prevY = 0;
 let symmetry = 6;
 let angle = 360 / symmetry;
 
-const radius = 10;
+const radius = 5;
+const flakeNum = 100;
+const randomRange = 30;
 
-function storeCoordinate(xVal, yVal, array) {
-    array.push({x: xVal, y: yVal});
-}
+// function storeCoordinate(xVal, yVal, array) {
+//     array.push({ x: xVal, y: yVal });
+// }
 
 var coords = [];
 
@@ -49,19 +51,60 @@ var coords = [];
 var canvasElementOffsetLeft;
 var canvasElementOffsetTop;
 
+// TODO:
+// 可以有内部空心设置
+
 function randomNum() {
-    const min = -30;
-    const max = 30;
+    const min = -randomRange;
+    const max = randomRange;
     let rand = min + Math.random() * (max - min);
-    rand = Math.round(rand);
+    // rand = Math.round(rand);
     return rand;
+}
+
+function noCollision(tempX, tempY, ejectAngle, distance) {
+
+    for (var i = 0; i < coords.length; i++) {
+        var x = coords[i].x;
+        var y = coords[i].y;
+
+        if ((tempX - x) * (tempX - x) + (tempY - y) * (tempY - y) < 4 * (radius) * (radius)) {
+            return false;
+        }
+        // const ctx = document.getElementById('canvas').getContext('2d');
+        // var c = ctx.getImageData(Math.cos(ejectAngle) * (distance - radius), Math.sin(ejectAngle) * (distance - radius), 1, 1).data;
+
+        // if (255 == c[0] &&
+        //     255 == c[1] &&
+        //     255 == c[2]) {
+        //     return false;
+        // }
+    }
+
+    return true;
+}
+
+function randomNormalDistribution() {
+    var u = 0.0, v = 0.0, w = 0.0, c = 0.0;
+    do {
+        //获得两个（-1,1）的独立随机变量
+        u = Math.random() * 2 - 1.0;
+        v = Math.random() * 2 - 1.0;
+        w = u * u + v * v;
+    } while (w == 0.0 || w >= 1.0)
+    //这里就是 Box-Muller转换
+    c = Math.sqrt((-2 * Math.log(w)) / w);
+    //返回2个标准正态分布的随机数，封装进一个数组返回
+    //当然，因为这个函数运行较快，也可以扔掉一个
+    //return [u*c,v*c];
+    return u * c;
 }
 
 class Canvas extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
-        let isMouseDown = false;
+        // let isMouseDown = false;
     }
 
     componentDidMount() {
@@ -98,28 +141,63 @@ class Canvas extends React.Component {
             ctx.stroke();
             ctx.rotate(Math.PI * 2 / symmetry);
         }
+
+        ctx.rotate(Math.PI);
     }
+
+    drawSymmetryFlakes(tempX, tempY) {
+
+        const ctx = this.refs.canvas.getContext('2d');
+        ctx.strokeStyle = "#FFFFFF";
+
+        // for (let i = 0; i < 6; i++) {
+        //     filledCircle({ ctx, x: tempX, y: tempY, radius: radius, color: "#2C2C2C" });
+        //     ctx.scale(-1, 1);
+        //     filledCircle({ ctx, x: tempX, y: tempY, radius: radius, color: "#2C2C2C" });
+        //     ctx.scale(-1, 1);
+        //     ctx.rotate(Math.PI * 2 / symmetry);
+        // }
+
+
+    }
+
+    standardNormalRand() {
+        const X = (Math.random - 0.5) * 2;  // (-1, 1)
+        const Y = Math.random / 2;
+        if (Y < 1 / ((Math.PI * Math.PI) * Math.pow(Math.E, X * X / 2)))
+            return X;
+        return randomNum();
+    }
+
 
     generatSnowflake() {
         const ctx = this.refs.canvas.getContext('2d');
 
-        for (let i = 0; i < 10; i++) {
-            const ejectAngle = randomNum() + 90;
+        for (let i = 0; i < flakeNum; i++) {
+            // TODO:
+            // create Normal distribution
+            // const ejectAngle = randomNum() + 90;
+            const ejectAngle = (2 * Math.PI) * (randomNum() + 90) / 360;
+            // const ejectAngle = 90 / 360 * (2 * Math.PI);
+
             let distance = 300;
             let tempX = Math.cos(ejectAngle) * distance;
             let tempY = Math.sin(ejectAngle) * distance;
 
-            while (distance >= 0 && noCollision()) {
-                distance--;
+            while (distance >= 0 && noCollision(tempX, tempY, ejectAngle, distance)) {
+                distance -= 1;
                 tempX = Math.cos(ejectAngle) * distance;
                 tempY = Math.sin(ejectAngle) * distance;
+
             }
-
-
-            filledCircle({ ctx, x: tempX, y: tempY, radius: radius, color: "#2C2C2C" });
-            coords.push({x: tempX, y: tempY});
+            console.log(i + ' ' + ejectAngle + ' ' + tempX + ' ' + tempY);
+            this.drawSymmetryFlakes(tempX, tempY);
+            // filledCircle({ ctx, x: tempX, y: tempY, radius: radius, color: "#2C2C2C" });
+            coords.push({ x: tempX, y: tempY });
         }
     }
+
+
 
 
     handleMouseDown = (event) => {
