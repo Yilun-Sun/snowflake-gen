@@ -1,18 +1,6 @@
 import React from 'react';
-// import Particle from './Particle';
-// import createParticle from './Particle';
 
-// function outlinedRect(props) {
-//     const { ctx, x, y, width, height } = props;
-//     ctx.rect(x, y, width, height);
-//     ctx.stroke();
-// }
 
-// function filledRect(props) {
-//     const { ctx, x, y, width, height, color } = props;
-//     ctx.fillStyle = color;
-//     ctx.fillRect(x, y, width, height);
-// }
 
 function filledCircle(props) {
     const { ctx, x, y, radius, color } = props;
@@ -57,34 +45,15 @@ var canvasElementOffsetTop;
 // TODO:
 // 可以有内部空心设置
 
+
+var currentParticle;
+
 function randomNum() {
     const min = -randomRange;
     const max = randomRange;
     let rand = min + Math.random() * (max - min);
     // rand = Math.round(rand);
     return rand;
-}
-
-function noCollision(tempX, tempY, ejectAngle, distance) {
-
-    for (var i = 0; i < coords.length; i++) {
-        var x = coords[i].x;
-        var y = coords[i].y;
-
-        if ((tempX - x) * (tempX - x) + (tempY - y) * (tempY - y) < 4 * (radius) * (radius)) {
-            return false;
-        }
-        // const ctx = document.getElementById('canvas').getContext('2d');
-        // var c = ctx.getImageData(Math.cos(ejectAngle) * (distance - radius), Math.sin(ejectAngle) * (distance - radius), 1, 1).data;
-
-        // if (255 == c[0] &&
-        //     255 == c[1] &&
-        //     255 == c[2]) {
-        //     return false;
-        // }
-    }
-
-    return true;
 }
 
 function randomNormalDistribution() {
@@ -103,6 +72,32 @@ function randomNormalDistribution() {
     return u * c;
 }
 
+function noCollision(particle) {
+    // for (let i = 0; i < particles.length; i++) {
+    //     if (particle)
+    // }
+
+
+    // for (var i = 0; i < coords.length; i++) {
+    //     var x = coords[i].x;
+    //     var y = coords[i].y;
+
+    //     if ((tempX - x) * (tempX - x) + (tempY - y) * (tempY - y) < 4 * (radius) * (radius)) {
+    //         return false;
+    //     }
+    //     // const ctx = document.getElementById('canvas').getContext('2d');
+    //     // var c = ctx.getImageData(Math.cos(ejectAngle) * (distance - radius), Math.sin(ejectAngle) * (distance - radius), 1, 1).data;
+
+    //     // if (255 == c[0] &&
+    //     //     255 == c[1] &&
+    //     //     255 == c[2]) {
+    //     //     return false;
+    //     // }
+    // }
+
+    // return true;
+}
+
 function createParticle(x, y, vx, vy, radius, ctx) {
     var object = new Object()
     object.x = x;
@@ -111,6 +106,8 @@ function createParticle(x, y, vx, vy, radius, ctx) {
     object.vy = vy;
     object.ctx = ctx;
     object.radius = radius;
+
+    let isFinished = false;
 
     object.setCoords = function (newX, newY) {
         this.x = newX;
@@ -124,15 +121,14 @@ function createParticle(x, y, vx, vy, radius, ctx) {
         if (this.x < 0) {
             this.x += this.vx;
             this.y += this.vy;
+            console.log('123');
         }
-        
-        // console.log(this.x);
-        // this.ctx.beginPath();
-        // this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-        // this.ctx.closePath();
-        // this.ctx.fillStyle = this.color;
-        // this.ctx.fill();
-        // console.log('drawing particle');
+        else {
+            if (!this.isFinished) {
+                this.isFinished = true;
+                particles.push(object);
+            }
+        }
     }
 
     return object;
@@ -163,20 +159,21 @@ function drawCoordinateLine() {
 function draw() {
     // this.updateCanvas();
     // this.drawCoordinateLine();
+
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawCoordinateLine();
+
     // var canvasElement = document.getElementById("canvas");
     // canvasElementOffsetLeft = canvasElement.offsetLeft;
     // canvasElementOffsetTop = canvasElement.offsetTop;
 
-    for (let i = 0; i < particles.length; i++) {
-        // particles[i].setCoords(particles[i].x + particles[i].vx, particles[i].y + particles[i].vy);
-        particles[i].draw();
-    }
-
-
+    // TODO:
+    // for (let i = 0; i < particles.length; i++) {
+    //     particles[i].draw();
+    // }
+    currentParticle.draw();
 
     var raf = window.requestAnimationFrame(draw);
 }
@@ -257,8 +254,9 @@ class Canvas extends React.Component {
         const ctx = this.refs.canvas.getContext('2d');
 
         var particle1 = createParticle(-100, -100, 0.5, 0.5, 10, ctx);
-        // particle1.draw();
-        particles.push(particle1);
+        
+        currentParticle = particle1;
+        
         draw();
         // var intervalID = window.setInterval(draw, 100);
 
