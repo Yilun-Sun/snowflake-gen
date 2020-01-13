@@ -1,4 +1,6 @@
 import React from 'react';
+// import Particle from './Particle';
+// import createParticle from './Particle';
 
 // function outlinedRect(props) {
 //     const { ctx, x, y, width, height } = props;
@@ -40,6 +42,7 @@ const randomRange = 30;
 // }
 
 var coords = [];
+var particles = [];
 
 // to loop through coordinate values
 // for (var i = 0; i < coords.length; i++) {
@@ -98,6 +101,84 @@ function randomNormalDistribution() {
     //当然，因为这个函数运行较快，也可以扔掉一个
     //return [u*c,v*c];
     return u * c;
+}
+
+function createParticle(x, y, vx, vy, radius, ctx) {
+    var object = new Object()
+    object.x = x;
+    object.y = y;
+    object.vx = vx;
+    object.vy = vy;
+    object.ctx = ctx;
+    object.radius = radius;
+
+    object.setCoords = function (newX, newY) {
+        this.x = newX;
+        this.y = newY;
+    }
+
+    object.draw = function () {
+        filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#2C2C2C" });
+        
+        // TODO: move follow the speed direction
+        if (this.x < 0) {
+            this.x += this.vx;
+            this.y += this.vy;
+        }
+        
+        // console.log(this.x);
+        // this.ctx.beginPath();
+        // this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
+        // this.ctx.closePath();
+        // this.ctx.fillStyle = this.color;
+        // this.ctx.fill();
+        // console.log('drawing particle');
+    }
+
+    return object;
+}
+
+function drawCoordinateLine() {
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext('2d');
+
+    filledCircle({ ctx, x: 0, y: 0, radius: 400, color: "#2C2C2C" });
+
+    ctx.strokeStyle = "#FFFFFB";
+
+    for (let i = 0; i < 3; i++) {
+        const coorLength = height / 20;
+        for (let t = 0; t < 20; t += 2) {
+            ctx.moveTo(0, height - coorLength * (t + 11.5));
+            ctx.lineTo(0, height - coorLength * (t + 10.5));
+        }
+
+        ctx.stroke();
+        ctx.rotate(Math.PI * 2 / symmetry);
+    }
+
+    ctx.rotate(Math.PI);
+}
+
+function draw() {
+    // this.updateCanvas();
+    // this.drawCoordinateLine();
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawCoordinateLine();
+    // var canvasElement = document.getElementById("canvas");
+    // canvasElementOffsetLeft = canvasElement.offsetLeft;
+    // canvasElementOffsetTop = canvasElement.offsetTop;
+
+    for (let i = 0; i < particles.length; i++) {
+        // particles[i].setCoords(particles[i].x + particles[i].vx, particles[i].y + particles[i].vy);
+        particles[i].draw();
+    }
+
+
+
+    var raf = window.requestAnimationFrame(draw);
 }
 
 class Canvas extends React.Component {
@@ -161,6 +242,8 @@ class Canvas extends React.Component {
 
     }
 
+
+
     standardNormalRand() {
         const X = (Math.random - 0.5) * 2;  // (-1, 1)
         const Y = Math.random / 2;
@@ -173,86 +256,96 @@ class Canvas extends React.Component {
     generatSnowflake() {
         const ctx = this.refs.canvas.getContext('2d');
 
-        for (let i = 0; i < flakeNum; i++) {
-            // TODO:
-            // create Normal distribution
-            // const ejectAngle = randomNum() + 90;
-            const ejectAngle = (2 * Math.PI) * (randomNum() + 90) / 360;
-            // const ejectAngle = 90 / 360 * (2 * Math.PI);
+        var particle1 = createParticle(-100, -100, 0.5, 0.5, 10, ctx);
+        // particle1.draw();
+        particles.push(particle1);
+        draw();
+        // var intervalID = window.setInterval(draw, 100);
 
-            let distance = 300;
-            let tempX = Math.cos(ejectAngle) * distance;
-            let tempY = Math.sin(ejectAngle) * distance;
 
-            while (distance >= 0 && noCollision(tempX, tempY, ejectAngle, distance)) {
-                distance -= 1;
-                tempX = Math.cos(ejectAngle) * distance;
-                tempY = Math.sin(ejectAngle) * distance;
 
-            }
-            console.log(i + ' ' + ejectAngle + ' ' + tempX + ' ' + tempY);
-            this.drawSymmetryFlakes(tempX, tempY);
-            // filledCircle({ ctx, x: tempX, y: tempY, radius: radius, color: "#2C2C2C" });
-            coords.push({ x: tempX, y: tempY });
-        }
+        // for (let i = 0; i < flakeNum; i++) {
+        //     // TODO:
+        //     // create Normal distribution
+        //     // const ejectAngle = randomNum() + 90;
+        //     const ejectAngle = (2 * Math.PI) * (randomNum() + 90) / 360;
+        //     // const ejectAngle = 90 / 360 * (2 * Math.PI);
+
+        //     let distance = 300;
+        //     let tempX = Math.cos(ejectAngle) * distance;
+        //     let tempY = Math.sin(ejectAngle) * distance;
+
+        //     while (distance >= 0 && noCollision(tempX, tempY, ejectAngle, distance)) {
+        //         distance -= 1;
+        //         tempX = Math.cos(ejectAngle) * distance;
+        //         tempY = Math.sin(ejectAngle) * distance;
+
+        //     }
+        //     console.log(i + ' ' + ejectAngle + ' ' + tempX + ' ' + tempY);
+        //     this.drawSymmetryFlakes(tempX, tempY);
+        //     // filledCircle({ ctx, x: tempX, y: tempY, radius: radius, color: "#2C2C2C" });
+        //     coords.push({ x: tempX, y: tempY });
+        // }
     }
 
 
 
 
-    handleMouseDown = (event) => {
-        console.log('mouse down');
-
-        this.isMouseDown = true;
-
-        prevX = event.pageX - canvasElementOffsetLeft - width / 2;
-        prevY = event.pageY - canvasElementOffsetTop - height / 2;
-    }
-
-    handleMouseUp = (event) => {
-        console.log('mouse up');
-
-        this.isMouseDown = false;
-    }
-
-    handleMouseMove = (event) => {
-        // var x = event.clientX - width / 2;
-        // var y = event.clientY - height / 2;
-
-        var x = event.pageX - canvasElementOffsetLeft - width / 2;
-        var y = event.pageY - canvasElementOffsetTop - height / 2;
 
 
+    // handleMouseDown = (event) => {
+    //     console.log('mouse down');
 
-        if (x > width / 2 - 10 || x < - width / 2 + 10 || y > height / 2 - 10 || y < - height / 2 + 10) {
-            this.isMouseDown = false;
-        }
+    //     this.isMouseDown = true;
 
-        const ctx = this.refs.canvas.getContext('2d');
-        if (this.isMouseDown) {
+    //     prevX = event.pageX - canvasElementOffsetLeft - width / 2;
+    //     prevY = event.pageY - canvasElementOffsetTop - height / 2;
+    // }
 
-            for (let i = 0; i < 6; i++) {
+    // handleMouseUp = (event) => {
+    //     console.log('mouse up');
 
-                ctx.beginPath();
-                ctx.moveTo(prevX, prevY);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                ctx.closePath();
-                ctx.scale(-1, 1);
-                ctx.beginPath();
-                ctx.moveTo(prevX, prevY);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                ctx.closePath();
-                ctx.scale(-1, 1);
+    //     this.isMouseDown = false;
+    // }
 
-                ctx.rotate(angle * Math.PI / 180);
-            }
+    // handleMouseMove = (event) => {
+    //     // var x = event.clientX - width / 2;
+    //     // var y = event.clientY - height / 2;
 
-            prevX = x;
-            prevY = y;
-        }
-    }
+    //     var x = event.pageX - canvasElementOffsetLeft - width / 2;
+    //     var y = event.pageY - canvasElementOffsetTop - height / 2;
+
+
+
+    //     if (x > width / 2 - 10 || x < - width / 2 + 10 || y > height / 2 - 10 || y < - height / 2 + 10) {
+    //         this.isMouseDown = false;
+    //     }
+
+    //     const ctx = this.refs.canvas.getContext('2d');
+    //     if (this.isMouseDown) {
+
+    //         for (let i = 0; i < 6; i++) {
+
+    //             ctx.beginPath();
+    //             ctx.moveTo(prevX, prevY);
+    //             ctx.lineTo(x, y);
+    //             ctx.stroke();
+    //             ctx.closePath();
+    //             ctx.scale(-1, 1);
+    //             ctx.beginPath();
+    //             ctx.moveTo(prevX, prevY);
+    //             ctx.lineTo(x, y);
+    //             ctx.stroke();
+    //             ctx.closePath();
+    //             ctx.scale(-1, 1);
+
+    //             ctx.rotate(angle * Math.PI / 180);
+    //         }
+
+    //         prevX = x;
+    //         prevY = y;
+    //     }
+    // }
 
     render() {
         return (
