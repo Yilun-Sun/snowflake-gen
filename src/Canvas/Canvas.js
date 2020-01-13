@@ -24,6 +24,9 @@ let angle = 360 / symmetry;
 const radius = 5;
 const flakeNum = 100;
 const randomRange = 30;
+const speed = 2;
+
+var particleNum = 20;
 
 // function storeCoordinate(xVal, yVal, array) {
 //     array.push({ x: xVal, y: yVal });
@@ -73,33 +76,22 @@ function randomNormalDistribution() {
 }
 
 function noCollision(particle) {
-    // for (let i = 0; i < particles.length; i++) {
-    //     if (particle)
-    // }
+    for (let i = 0; i < particles.length; i++) {
+        const tempSpeedLength = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
+        const nextX = particle.x + particle.vx / tempSpeedLength;
+        const nextY = particle.y + particle.vy / tempSpeedLength;
 
+        const distance = Math.sqrt((nextX - particles[i].x) * (nextX - particles[i].x) + (nextY - particles[i].y) * (nextY - particles[i].y));
+        if (distance < 2 * radius) {
+            return false;
+        }
+    }
 
-    // for (var i = 0; i < coords.length; i++) {
-    //     var x = coords[i].x;
-    //     var y = coords[i].y;
-
-    //     if ((tempX - x) * (tempX - x) + (tempY - y) * (tempY - y) < 4 * (radius) * (radius)) {
-    //         return false;
-    //     }
-    //     // const ctx = document.getElementById('canvas').getContext('2d');
-    //     // var c = ctx.getImageData(Math.cos(ejectAngle) * (distance - radius), Math.sin(ejectAngle) * (distance - radius), 1, 1).data;
-
-    //     // if (255 == c[0] &&
-    //     //     255 == c[1] &&
-    //     //     255 == c[2]) {
-    //     //     return false;
-    //     // }
-    // }
-
-    // return true;
+    return true;
 }
 
 function createParticle(x, y, vx, vy, radius, ctx) {
-    var object = new Object()
+    var object = new Object();
     object.x = x;
     object.y = y;
     object.vx = vx;
@@ -116,19 +108,35 @@ function createParticle(x, y, vx, vy, radius, ctx) {
 
     object.draw = function () {
         filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#2C2C2C" });
-        
+
         // TODO: move follow the speed direction
-        if (this.x < 0) {
+        if (this.x < 0 && noCollision(object)) {
             this.x += this.vx;
             this.y += this.vy;
-            console.log('123');
+            // console.log('moving particle');
         }
         else {
             if (!this.isFinished) {
                 this.isFinished = true;
-                particles.push(object);
+                // store finished particles
+                // particles.push(object);
+                
+                drawSymmetryFlakes(object);
+                // console.log(this.x + ' ');
+            }
+            else {
+                // create new particle
+                if (particleNum > 0) {
+                    particleNum--;
+                    var particle1 = createParticle(-100, -100, speed, speed, radius, ctx);
+                    currentParticle = particle1;
+                }
             }
         }
+    }
+
+    object.show = function () {
+        filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#2C2C2C" });
     }
 
     return object;
@@ -170,12 +178,50 @@ function draw() {
     // canvasElementOffsetTop = canvasElement.offsetTop;
 
     // TODO:
-    // for (let i = 0; i < particles.length; i++) {
-    //     particles[i].draw();
-    // }
+
+    // show finished particles
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].show();
+    }
+
     currentParticle.draw();
 
     var raf = window.requestAnimationFrame(draw);
+}
+
+function drawSymmetryFlakes(particle) {
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = "#FFFFFF";
+
+    const tempX = particle.x;
+    const tempY = particle.y;
+    const distance = Math.sqrt(particle.x * particle.x + particle.y * particle.y);
+    
+
+    let tempAngle = Math.atan2(tempY, tempX);
+
+    for (let i = 0; i < 6; i++) {
+        var particle3 = createParticle(distance * Math.cos(tempAngle), distance * Math.sin(tempAngle), 0, 0, radius, ctx);
+        
+        // particle1.isFinished = true;
+        particles.push(particle3);
+        console.log(particle3.x);
+        
+        tempAngle += Math.PI * 2 / symmetry
+        
+        // ctx.scale(-1, 1);
+
+        // var particle2 = createParticle(tempX, tempY, 0, 0, radius, ctx);
+        // particle2.isFinished = true;
+        // particles.push(particle2);
+        // ctx.scale(-1, 1);
+
+        // ctx.rotate(Math.PI * 2 / symmetry);
+    }
+
+
 }
 
 class Canvas extends React.Component {
@@ -253,11 +299,15 @@ class Canvas extends React.Component {
     generatSnowflake() {
         const ctx = this.refs.canvas.getContext('2d');
 
-        var particle1 = createParticle(-100, -100, 0.5, 0.5, 10, ctx);
-        
+        particleNum--;
+        var particle1 = createParticle(-100, -100, speed, speed, radius, ctx);
         currentParticle = particle1;
-        
+
         draw();
+
+
+
+
         // var intervalID = window.setInterval(draw, 100);
 
 
