@@ -26,7 +26,7 @@ const flakeNum = 100;
 const randomRange = 30;
 const speed = 2;
 
-var particleNum = 20;
+var particleNum = 100;
 
 // function storeCoordinate(xVal, yVal, array) {
 //     array.push({ x: xVal, y: yVal });
@@ -75,6 +75,16 @@ function randomNormalDistribution() {
     return u * c;
 }
 
+function randomSquareDistribution() {
+
+    let u = Math.random() * 2 - 1.0;
+
+    if (u >= 0)
+        return u * u;
+    else
+        return - u * u;
+}
+
 function noCollision(particle) {
     for (let i = 0; i < particles.length; i++) {
         const tempSpeedLength = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
@@ -107,10 +117,10 @@ function createParticle(x, y, vx, vy, radius, ctx) {
     }
 
     object.draw = function () {
-        filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#2C2C2C" });
+        filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#FFFFFF" });
 
         // TODO: move follow the speed direction
-        if (this.x < 0 && noCollision(object)) {
+        if (this.y < 0 && noCollision(object)) {
             this.x += this.vx;
             this.y += this.vy;
             // console.log('moving particle');
@@ -120,7 +130,7 @@ function createParticle(x, y, vx, vy, radius, ctx) {
                 this.isFinished = true;
                 // store finished particles
                 // particles.push(object);
-                
+
                 drawSymmetryFlakes(object);
                 // console.log(this.x + ' ');
             }
@@ -128,7 +138,9 @@ function createParticle(x, y, vx, vy, radius, ctx) {
                 // create new particle
                 if (particleNum > 0) {
                     particleNum--;
-                    var particle1 = createParticle(-100, -100, speed, speed, radius, ctx);
+                    let speedX = randomSquareDistribution();
+                    let speedY = Math.sqrt(4 - speedX * speedX);
+                    var particle1 = createParticle(speedX * 400 / Math.sqrt(3), -400, - speedX * speed, speedY * speed, radius, ctx);
                     currentParticle = particle1;
                 }
             }
@@ -136,7 +148,7 @@ function createParticle(x, y, vx, vy, radius, ctx) {
     }
 
     object.show = function () {
-        filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#2C2C2C" });
+        filledCircle({ ctx: this.ctx, x: this.x, y: this.y, radius: this.radius, color: "#FFFFFF" });
     }
 
     return object;
@@ -146,22 +158,22 @@ function drawCoordinateLine() {
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext('2d');
 
-    filledCircle({ ctx, x: 0, y: 0, radius: 400, color: "#2C2C2C" });
+    filledCircle({ ctx, x: 0, y: 0, radius: 400 - 5, color: "#2C2C2C" });
 
     ctx.strokeStyle = "#FFFFFB";
 
-    for (let i = 0; i < 3; i++) {
-        const coorLength = height / 20;
-        for (let t = 0; t < 20; t += 2) {
-            ctx.moveTo(0, height - coorLength * (t + 11.5));
-            ctx.lineTo(0, height - coorLength * (t + 10.5));
-        }
+    // for (let i = 0; i < 3; i++) {
+    //     const coorLength = height / 20;
+    //     for (let t = 0; t < 20; t += 2) {
+    //         ctx.moveTo(0, height - coorLength * (t + 11.5));
+    //         ctx.lineTo(0, height - coorLength * (t + 10.5));
+    //     }
 
-        ctx.stroke();
-        ctx.rotate(Math.PI * 2 / symmetry);
-    }
+    //     ctx.stroke();
+    //     ctx.rotate(Math.PI * 2 / symmetry);
+    // }
 
-    ctx.rotate(Math.PI);
+    // ctx.rotate(Math.PI);
 }
 
 function draw() {
@@ -170,7 +182,7 @@ function draw() {
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(-400, -400, 800, 800);
     drawCoordinateLine();
 
     // var canvasElement = document.getElementById("canvas");
@@ -187,6 +199,7 @@ function draw() {
     currentParticle.draw();
 
     var raf = window.requestAnimationFrame(draw);
+    // draw();
 }
 
 function drawSymmetryFlakes(particle) {
@@ -198,19 +211,24 @@ function drawSymmetryFlakes(particle) {
     const tempX = particle.x;
     const tempY = particle.y;
     const distance = Math.sqrt(particle.x * particle.x + particle.y * particle.y);
-    
+
 
     let tempAngle = Math.atan2(tempY, tempX);
 
     for (let i = 0; i < 6; i++) {
         var particle3 = createParticle(distance * Math.cos(tempAngle), distance * Math.sin(tempAngle), 0, 0, radius, ctx);
-        
+
         // particle1.isFinished = true;
         particles.push(particle3);
-        console.log(particle3.x);
-        
+        // console.log(particle3.x);
+
+        var particle4 = createParticle(- distance * Math.cos(tempAngle), distance * Math.sin(tempAngle), 0, 0, radius, ctx);
+
+        // particle1.isFinished = true;
+        particles.push(particle4);
+
         tempAngle += Math.PI * 2 / symmetry
-        
+
         // ctx.scale(-1, 1);
 
         // var particle2 = createParticle(tempX, tempY, 0, 0, radius, ctx);
