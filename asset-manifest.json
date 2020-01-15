@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/snowflake-gen/static/css/main.8ab6f918.chunk.css",
+    "main.js": "/snowflake-gen/static/js/main.91bb8199.chunk.js",
+    "main.js.map": "/snowflake-gen/static/js/main.91bb8199.chunk.js.map",
+    "runtime-main.js": "/snowflake-gen/static/js/runtime-main.cbf00437.js",
+    "runtime-main.js.map": "/snowflake-gen/static/js/runtime-main.cbf00437.js.map",
+    "static/js/2.bdb7624b.chunk.js": "/snowflake-gen/static/js/2.bdb7624b.chunk.js",
+    "static/js/2.bdb7624b.chunk.js.map": "/snowflake-gen/static/js/2.bdb7624b.chunk.js.map",
+    "index.html": "/snowflake-gen/index.html",
+    "precache-manifest.b09acee0a8fff50509ade442b76c635d.js": "/snowflake-gen/precache-manifest.b09acee0a8fff50509ade442b76c635d.js",
+    "service-worker.js": "/snowflake-gen/service-worker.js",
+    "static/css/main.8ab6f918.chunk.css.map": "/snowflake-gen/static/css/main.8ab6f918.chunk.css.map",
+    "static/js/2.bdb7624b.chunk.js.LICENSE": "/snowflake-gen/static/js/2.bdb7624b.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.cbf00437.js",
+    "static/js/2.bdb7624b.chunk.js",
+    "static/css/main.8ab6f918.chunk.css",
+    "static/js/main.91bb8199.chunk.js"
+  ]
+}
