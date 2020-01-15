@@ -1,47 +1,42 @@
-
-// var ctx = document.getElementById('canvas').getContext('2d');
-
 // class Particle {
-//     constructor (x, y, vx, vy, radius, ctx) {
-//         this.x = x;
-//         this.y = y;
-//         this.vx = vx;
-//         this.vy = vy;
-//         this.ctx = ctx;
-//         // this.sayName = function () { alert(this.name); };
 
-//         this.radius = radius;
+//     constructor(radius, angle) {
+//       this.pos = p5.Vector.fromAngle(angle);
+//       this.pos.mult(radius);
+//       this.r = 2;
 //     }
-
-//     //   color: 'blue',
-//     draw() {
-//         this.ctx.beginPath();
-//         this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-//         this.ctx.closePath();
-//         this.ctx.fillStyle = this.color;
-//         this.ctx.fill();
+  
+//     update() {
+//       this.pos.x -= 1;
+//       this.pos.y += random(-3, 3);
+  
+//       let angle = this.pos.heading();
+//       angle = constrain(angle, 0, PI/6);
+//       let magnitude = this.pos.mag();
+//       this.pos = p5.Vector.fromAngle(angle);
+//       this.pos.setMag(magnitude);
 //     }
-// }
-
-function createParticle(x, y, vx, vy, radius, ctx) {
-    var object = new Object()
-    object.x = x;
-    object.y = y;
-    object.vx = vx;
-    object.vy = vy;
-    object.ctx = ctx;
-    object.radius = radius;
-    object.color = 'blue';
-
-
-    object.draw = function () {
-        this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-        this.ctx.closePath();
-        this.ctx.fillStyle = this.color;
-        this.ctx.fill();
-        console.log('drawing particle');
-    }
-
-    return object;
-}
+  
+//     show() {
+//       fill(100, 200, 255, 150);
+//       stroke(255, 150);
+//       ellipse(this.pos.x, this.pos.y, this.r * 2);
+//     }
+  
+//     intersects(snowflake) {
+//       let result = false;
+//       for (let s of snowflake) {
+//         let d = dist(s.pos.x, s.pos.y, this.pos.x, this.pos.y); 
+//         if (d < this.r * 2) {
+//           result = true;
+//           break;
+//         }
+//       }
+//       return result;
+//     }
+  
+//     finished() {
+//       return (this.pos.x < 1);
+//     }
+//   }
+  
